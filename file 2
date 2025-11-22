@@ -1,0 +1,411 @@
+-- =============================================
+-- HRMS Data Insertion Script
+-- Covers ALL scenarios from ALL User Stories
+-- =============================================
+
+-- Currency
+INSERT INTO Currency (CurrencyCode, CurrencyName, ExchangeRate) VALUES
+('USD', 'US Dollar', 1.0000),
+('EUR', 'Euro', 0.8500),
+('EGP', 'Egyptian Pound', 30.9000);
+
+-- Department
+INSERT INTO Department (department_name, purpose) VALUES
+('IT', 'Information Technology'),
+('HR', 'Human Resources'),
+('Finance', 'Financial Operations'),
+('Marketing', 'Marketing and Sales'),
+('Operations', 'Daily Operations');
+
+-- Position
+INSERT INTO Position (position_title, responsibilities, status) VALUES
+('Software Engineer', 'Develop software', 'Active'),
+('HR Manager', 'Manage HR', 'Active'),
+('Accountant', 'Handle finances', 'Active'),
+('Marketing Specialist', 'Marketing campaigns', 'Active'),
+('Team Lead', 'Lead teams', 'Active'),
+('Junior Developer', 'Assist development', 'Active');
+
+-- Role
+INSERT INTO Role (role_name, purpose) VALUES
+('System Admin', 'Full system access'),
+('HR Admin', 'HR operations'),
+('Payroll Officer', 'Payroll management'),
+('Line Manager', 'Team management'),
+('Employee', 'Basic access');
+
+-- RolePermission
+INSERT INTO RolePermission (role_id, permission_name, allowed_action) VALUES
+(1, 'System Config', 'Full Access'),
+(2, 'Employee Records', 'Create, Read, Update'),
+(3, 'Payroll', 'Process'),
+(4, 'Team Management', 'Approve'),
+(5, 'Self Service', 'Read');
+
+-- Skill
+INSERT INTO Skill (skill_name, description) VALUES
+('Java', 'Java programming'),
+('Python', 'Python programming'),
+('SQL', 'Database queries'),
+('Leadership', 'Team leadership');
+
+-- Verification
+INSERT INTO Verification (verification_type, issuer, issue_date, expiry_period) VALUES
+('Bachelor Degree', 'Cairo University', '2018-06-15', '2099-12-31'),
+('AWS Certification', 'Amazon', '2023-01-10', '2026-01-10'),
+('PMP', 'PMI', '2022-05-15', '2025-05-15');
+
+-- TaxForm
+INSERT INTO TaxForm (jurisdiction, validity_period, form_content) VALUES
+('Egypt', '2025-01-01 to 2025-12-31', 'Egyptian tax rules'),
+('USA', '2025-01-01 to 2025-12-31', 'US tax rules');
+
+-- PayGrade
+INSERT INTO PayGrade (grade_name, min_salary, max_salary) VALUES
+('Grade 1', 5000.00, 10000.00),
+('Grade 2', 10000.00, 20000.00),
+('Grade 3', 20000.00, 35000.00),
+('Grade 4', 35000.00, 50000.00);
+
+-- Insurance
+INSERT INTO Insurance (type, contribution_rate, coverage) VALUES
+('Health Insurance', 5.00, 'Full medical coverage'),
+('Life Insurance', 2.00, 'Life coverage');
+
+-- Contract
+INSERT INTO Contract (type, start_date, end_date, current_state) VALUES
+('Full-Time', '2020-01-15', '2025-01-15', 'Active'),
+('Full-Time', '2021-03-01', '2026-03-01', 'Active'),
+('Full-Time', '2019-06-10', '2024-06-10', 'Active'),
+('Part-Time', '2023-01-01', '2024-01-01', 'Active'),
+('Full-Time', '2022-09-01', '2027-09-01', 'Active'),
+('Consultant', '2024-01-01', '2024-12-31', 'Active'),
+('Internship', '2024-06-01', '2024-12-01', 'Active'),
+('Full-Time', '2018-01-01', '2025-01-20', 'Active');
+
+-- Contract Subtypes
+INSERT INTO FullTimeContract (contract_id, leave_entitlement, insurance_eligibility, weekly_working_hours) VALUES
+(1, 21, 'Full', 40),
+(2, 21, 'Full', 40),
+(3, 21, 'Full', 40),
+(5, 21, 'Full', 40),
+(8, 21, 'Full', 40);
+
+INSERT INTO PartTimeContract (contract_id, working_hours, hourly_rate) VALUES
+(4, 20, 50.00);
+
+INSERT INTO ConsultantContract (contract_id, project_scope, fees, payment_schedule) VALUES
+(6, 'System Integration', 15000.00, 'Monthly');
+
+INSERT INTO InternshipContract (contract_id, mentoring, evaluation, stipend_related) VALUES
+(7, 'Senior Developer', 'Monthly Review', 3000.00);
+
+-- SalaryType
+INSERT INTO SalaryType (type, payment_frequency, currency) VALUES
+('Monthly', 'Monthly', 'US Dollar'),
+('Hourly', 'Weekly', 'US Dollar'),
+('Contract', 'Per Project', 'US Dollar');
+
+INSERT INTO MonthlySalaryType (salary_type_id, tax_rule, contribution_scheme) VALUES
+(1, 'Standard 15%', 'Pension 5%');
+
+INSERT INTO HourlySalaryType (salary_type_id, hourly_rate, max_monthly_hours) VALUES
+(2, 50.00, 160);
+
+INSERT INTO ContractSalaryType (salary_type_id, contract_value, installment_details) VALUES
+(3, 15000.00, '3 Payments');
+
+-- ShiftSchedule
+INSERT INTO ShiftSchedule (name, type, start_time, end_time, break_duration, shift_date, status) VALUES
+('Morning Shift', 'Normal', '08:00:00', '16:00:00', 60, '2025-01-01', 'Active'),
+('Evening Shift', 'Normal', '16:00:00', '00:00:00', 60, '2025-01-01', 'Active'),
+('Night Shift', 'Overnight', '00:00:00', '08:00:00', 60, '2025-01-01', 'Active'),
+('Flex Shift', 'Flexible', '09:00:00', '17:00:00', 60, '2025-01-01', 'Active');
+
+-- ShiftCycle
+INSERT INTO ShiftCycle (cycle_name, description) VALUES
+('Rotational', 'Weekly rotation'),
+('Day Only', 'Morning only');
+
+INSERT INTO ShiftCycleAssignment (cycle_id, shift_id, order_number) VALUES
+(1, 1, 1),
+(1, 2, 2),
+(2, 1, 1);
+
+-- Exception (Holidays)
+INSERT INTO Exception (name, category, date, status) VALUES
+('New Year', 'Public Holiday', '2025-01-01', 'Active'),
+('Eid Al-Fitr', 'Religious Holiday', '2025-03-30', 'Active'),
+('Labor Day', 'Public Holiday', '2025-05-01', 'Active');
+
+-- Leave
+INSERT INTO Leave (leave_type, leave_description) VALUES
+('Vacation', 'Annual vacation'),
+('Sick', 'Medical leave'),
+('Probation', 'Probation leave'),
+('Holiday', 'Public holiday'),
+('Bereavement', 'Family emergency');
+
+INSERT INTO VacationLeave (leave_id, carry_over_days, approving_manager) VALUES
+(1, 5, 'Direct Manager');
+
+INSERT INTO SickLeave (leave_id, medical_cert_required, physician_id) VALUES
+(2, 1, 'PHY001');
+
+INSERT INTO ProbationLeave (leave_id, eligibility_start_date, probation_period) VALUES
+(3, '2025-01-01', 90);
+
+INSERT INTO HolidayLeave (leave_id, holiday_name, official_recognition, regional_scope) VALUES
+(4, 'National Holidays', 1, 'Egypt');
+
+-- LeavePolicy
+INSERT INTO LeavePolicy (name, purpose, eligibility_rules, notice_period, special_leave_type, reset_on_new_year) VALUES
+('Annual Leave', 'Vacation rules', 'Full-time employees', 7, NULL, 1),
+('Sick Leave', 'Medical rules', 'All employees', 0, 'Sick', 1),
+('Bereavement', 'Emergency leave', 'All employees', 0, 'Bereavement', 0);
+
+-- PayrollPolicy
+INSERT INTO PayrollPolicy (effective_date, type, description) VALUES
+('2025-01-01', 'Overtime', 'Overtime rules'),
+('2025-01-01', 'Lateness', 'Late deduction rules'),
+('2025-01-01', 'Bonus', 'Bonus rules'),
+('2025-01-01', 'Deduction', 'Deduction rules');
+
+INSERT INTO OvertimePolicy (policy_id, weekday_rate_multiplier, weekend_rate_multiplier, max_hours_per_month) VALUES
+(1, 1.50, 2.00, 40);
+
+INSERT INTO LatenessPolicy (policy_id, grace_period_mins, deduction_rate) VALUES
+(2, 10, 50.00);
+
+INSERT INTO BonusPolicy (policy_id, bonus_type, eligibility_criteria) VALUES
+(3, 'Performance', 'Min 6 months, 90% attendance');
+
+INSERT INTO DeductionPolicy (policy_id, deduction_reason, calculation_mode) VALUES
+(4, 'Unpaid Leave', 'Per Day');
+
+-- Notification
+INSERT INTO Notification (message_content, urgency, notification_type) VALUES
+('Leave request approved', 'Normal', 'Leave'),
+('New shift assigned', 'Normal', 'Shift'),
+('Payroll processed', 'High', 'Payroll'),
+('Structure change', 'High', 'System'),
+('Mission assigned', 'Normal', 'Mission');
+
+-- ApprovalWorkflow
+INSERT INTO ApprovalWorkflow (workflow_type, threshold_amount, approver_role, status) VALUES
+('Leave Approval', 0.00, 'Line Manager', 'Active'),
+('Reimbursement', 1000.00, 'HR Admin', 'Active');
+
+-- =============================================
+-- EMPLOYEES
+-- =============================================
+
+INSERT INTO Employee (first_name, last_name, national_id, date_of_birth, country_of_birth, phone, email, address, emergency_contact_name, emergency_contact_phone, relationship, hire_date, is_active, profile_completion, department_id, position_id, contract_id, tax_form_id, salary_type_id, pay_grade) VALUES
+('Ahmed', 'Hassan', 'EG100', '1975-05-15', 'Egypt', '0101111111', 'ahmed@company.com', 'Cairo', 'Sara', '0109999999', 'Spouse', '2018-01-01', 1, 100, 1, 5, 1, 1, 1, 4),
+('Mohamed', 'Ali', 'EG200', '1980-03-20', 'Egypt', '0102222222', 'mohamed@company.com', 'Giza', 'Fatma', '0108888888', 'Spouse', '2019-06-10', 1, 100, 1, 5, 2, 1, 1, 3),
+('Sara', 'Ibrahim', 'EG300', '1982-07-10', 'Egypt', '0103333333', 'sara@company.com', 'Alexandria', 'Omar', '0107777777', 'Spouse', '2020-01-15', 1, 100, 2, 2, 3, 1, 1, 3),
+('Khaled', 'Mahmoud', 'EG400', '1978-11-25', 'Egypt', '0104444444', 'khaled@company.com', 'Cairo', 'Nadia', '0106666666', 'Spouse', '2021-03-01', 1, 100, 3, 3, 5, 1, 1, 3),
+('Nour', 'Ahmed', 'EG500', '1990-02-14', 'Egypt', '0105555555', 'nour@company.com', 'Cairo', 'Ali', '0105555550', 'Father', '2022-09-01', 1, 80, 1, 1, 5, 1, 1, 2),
+('Youssef', 'Omar', 'EG600', '1992-08-30', 'Egypt', '0106666660', 'youssef@company.com', 'Giza', 'Laila', '0104444440', 'Mother', '2023-05-15', 1, 70, 1, 6, 8, 1, 1, 1),
+('Laila', 'Mostafa', 'EG700', '1988-12-05', 'Egypt', '0107777770', 'laila@company.com', 'Cairo', 'Hassan', '0103333330', 'Father', '2020-07-01', 1, 90, 2, 2, 8, 1, 1, 2),
+('Omar', 'Tarek', 'EG800', '1995-04-18', 'Egypt', '0108888880', 'omar@company.com', 'Alexandria', 'Mona', '0102222220', 'Mother', '2024-01-01', 1, 50, 3, 3, 6, 1, 1, 2),
+('Mona', 'Samir', 'EG900', '1998-09-22', 'Egypt', '0109999990', 'mona@company.com', 'Cairo', 'Samir', '0101111110', 'Father', '2023-01-01', 1, 60, 4, 4, 4, 1, 2, 1),
+('Ali', 'Fathy', 'EG1000', '2000-06-08', 'Egypt', '0100000001', 'ali@company.com', 'Giza', 'Fathy', '0100000002', 'Father', '2024-06-01', 1, 40, 1, 6, 7, 1, 1, 1);
+
+-- Update manager references
+UPDATE Employee SET manager_id = 1 WHERE employee_id IN (2, 3, 4);
+UPDATE Employee SET manager_id = 2 WHERE employee_id IN (5, 6, 10);
+UPDATE Employee SET manager_id = 3 WHERE employee_id = 7;
+UPDATE Employee SET manager_id = 4 WHERE employee_id IN (8, 9);
+
+-- Update Department Heads
+UPDATE Department SET department_head_id = 2 WHERE department_id = 1;
+UPDATE Department SET department_head_id = 3 WHERE department_id = 2;
+UPDATE Department SET department_head_id = 4 WHERE department_id = 3;
+
+-- Employee Specializations
+INSERT INTO HRAdministrator (employee_id, approval_level, record_access_scope, document_validation_rights) VALUES
+(3, 'Organization-Wide', 'All Records', 'Approve Contracts');
+
+INSERT INTO SystemAdministrator (employee_id, system_privilege_level, configurable_fields, audit_visibility_scope) VALUES
+(1, 'Super Admin', 'All Fields', 'Full Logs');
+
+INSERT INTO PayrollSpecialist (employee_id, assigned_region, processing_frequency, last_processed_period) VALUES
+(4, 'All Regions', 'Monthly', 'October 2025');
+
+INSERT INTO LineManager (employee_id, team_size, supervised_departments, approval_limit) VALUES
+(2, 3, 'IT', 'Department'),
+(3, 1, 'HR', 'Department'),
+(4, 2, 'Finance', 'Department');
+
+-- Employee_Role
+INSERT INTO Employee_Role (employee_id, role_id, assigned_date) VALUES
+(1, 1, '2018-01-01'),
+(2, 4, '2019-06-10'),
+(3, 2, '2020-01-15'),
+(4, 3, '2021-03-01'),
+(5, 5, '2022-09-01'),
+(6, 5, '2023-05-15'),
+(7, 5, '2020-07-01'),
+(8, 5, '2024-01-01'),
+(9, 5, '2023-01-01'),
+(10, 5, '2024-06-01');
+
+-- Employee_Skill
+INSERT INTO Employee_Skill (employee_id, skill_id, proficiency_level) VALUES
+(2, 1, 'Expert'),
+(5, 1, 'Intermediate'),
+(5, 2, 'Advanced'),
+(6, 1, 'Beginner');
+
+-- Employee_Verification
+INSERT INTO Employee_Verification (employee_id, verification_id) VALUES
+(2, 1),
+(2, 2),
+(5, 1);
+
+-- EmployeeHierarchy
+INSERT INTO EmployeeHierarchy (employee_id, manager_id, hierarchy_level) VALUES
+(2, 1, 1),
+(3, 1, 1),
+(4, 1, 1),
+(5, 2, 2),
+(6, 2, 2),
+(7, 3, 2),
+(8, 4, 2),
+(9, 4, 2),
+(10, 2, 2);
+
+-- Device
+INSERT INTO Device (device_type, terminal_id, latitude, longitude) VALUES
+('Fingerprint', 'TERM001', 30.0444, 31.2357),
+('Card Reader', 'TERM002', 30.0444, 31.2357);
+
+-- ShiftAssignment
+INSERT INTO ShiftAssignment (employee_id, shift_id, start_date, end_date, status) VALUES
+(5, 1, '2025-01-01', '2025-12-31', 'Active'),
+(6, 1, '2025-01-01', '2025-12-31', 'Active'),
+(7, 4, '2025-01-01', '2025-12-31', 'Active'),
+(8, 1, '2025-01-01', '2025-12-31', 'Active'),
+(9, 4, '2025-01-01', '2025-06-30', 'Active'),
+(10, 1, '2025-01-01', '2025-12-31', 'Active');
+
+-- Attendance (normal, late, missed punch)
+INSERT INTO Attendance (employee_id, shift_id, entry_time, exit_time, duration, login_method, logout_method) VALUES
+(5, 1, '2025-11-01 08:00:00', '2025-11-01 16:00:00', 480, 'Fingerprint', 'Fingerprint'),
+(5, 1, '2025-11-02 08:15:00', '2025-11-02 16:00:00', 465, 'Fingerprint', 'Fingerprint'),
+(6, 1, '2025-11-01 08:05:00', '2025-11-01 16:00:00', 475, 'Card', 'Card'),
+(7, 4, '2025-11-01 09:00:00', '2025-11-01 17:00:00', 480, 'Fingerprint', 'Fingerprint'),
+(5, 1, '2025-11-03 08:00:00', NULL, NULL, 'Fingerprint', NULL);
+
+-- AttendanceLog
+INSERT INTO AttendanceLog (attendance_id, actor, reason) VALUES
+(2, 2, 'Late arrival'),
+(5, 2, 'Missed clock out');
+
+-- AttendanceCorrectionRequest
+INSERT INTO AttendanceCorrectionRequest (employee_id, date, correction_type, reason, status, recorded_by) VALUES
+(5, '2025-11-03', 'Missed Punch', 'Forgot to clock out', 'Pending', 5),
+(6, '2025-11-02', 'Wrong Time', 'System error', 'Approved', 2);
+
+-- AttendanceSource
+INSERT INTO AttendanceSource (attendance_id, device_id, source_type, latitude, longitude) VALUES
+(1, 1, 'Fingerprint', 30.0444, 31.2357),
+(3, 2, 'Card', 30.0444, 31.2357);
+
+-- LeaveRequest (pending, approved, rejected)
+INSERT INTO LeaveRequest (employee_id, leave_id, justification, duration, status) VALUES
+(5, 1, 'Family vacation', 5, 'Pending'),
+(6, 2, 'Medical appointment', 1, 'Approved'),
+(7, 1, 'Personal travel', 3, 'Pending'),
+(5, 2, 'Flu', 2, 'Approved'),
+(8, 1, 'Wedding', 2, 'Rejected');
+
+-- LeaveEntitlement
+INSERT INTO LeaveEntitlement (employee_id, leave_type_id, entitlement) VALUES
+(5, 1, 21.00),
+(5, 2, 14.00),
+(6, 1, 21.00),
+(6, 2, 14.00),
+(7, 1, 21.00),
+(8, 1, 15.00);
+
+-- LeaveDocument
+INSERT INTO LeaveDocument (leave_request_id, file_path) VALUES
+(2, '/docs/med_cert_006.pdf'),
+(4, '/docs/med_cert_005.pdf');
+
+-- Mission (pending, approved, completed)
+INSERT INTO Mission (destination, start_date, end_date, status, employee_id, manager_id) VALUES
+('Alexandria', '2025-12-01', '2025-12-05', 'Pending', 5, 2),
+('Dubai', '2025-11-15', '2025-11-18', 'Approved', 2, 1),
+('Client Site', '2025-11-20', '2025-11-21', 'Completed', 6, 2);
+
+-- Reimbursement (pending, approved, rejected)
+INSERT INTO Reimbursement (type, claim_type, current_status, employee_id) VALUES
+('Travel', 'Transport', 'Pending', 5),
+('Equipment', 'Supplies', 'Approved', 6),
+('Travel', 'Hotel', 'Rejected', 8);
+
+-- Termination
+INSERT INTO Termination (date, reason, contract_id) VALUES
+('2024-06-10', 'Contract ended', 3);
+
+-- Payroll
+INSERT INTO Payroll (employee_id, taxes, period_start, period_end, base_amount, adjustments, contributions, actual_pay, net_salary, payment_date) VALUES
+(5, 1500.00, '2025-10-01', '2025-10-31', 15000.00, 500.00, 800.00, 15500.00, 13200.00, '2025-10-31'),
+(6, 750.00, '2025-10-01', '2025-10-31', 8000.00, 0.00, 400.00, 8000.00, 6850.00, '2025-10-31'),
+(7, 2000.00, '2025-10-01', '2025-10-31', 25000.00, 1000.00, 1200.00, 26000.00, 22800.00, '2025-10-31'),
+(5, 1500.00, '2025-09-01', '2025-09-30', 15000.00, 0.00, 800.00, 15000.00, 12700.00, '2025-09-30');
+
+-- PayrollPeriod
+INSERT INTO PayrollPeriod (payroll_id, start_date, end_date, status) VALUES
+(1, '2025-10-01', '2025-10-31', 'Closed'),
+(2, '2025-10-01', '2025-10-31', 'Closed');
+
+-- AllowanceDeduction
+INSERT INTO AllowanceDeduction (payroll_id, employee_id, type, amount, currency) VALUES
+(1, 5, 'Transport', 500.00, 'US Dollar'),
+(3, 7, 'Bonus', 1000.00, 'US Dollar');
+
+-- PayrollPolicy_ID
+INSERT INTO PayrollPolicy_ID (payroll_id, policy_id) VALUES
+(1, 1),
+(1, 2),
+(3, 3);
+
+-- Payroll_Log
+INSERT INTO Payroll_Log (payroll_id, actor, modification_type) VALUES
+(1, 4, 'Created'),
+(1, 4, 'Allowance Added');
+
+-- Employee_Notification
+INSERT INTO Employee_Notification (employee_id, notification_id, delivery_status, delivered_at) VALUES
+(5, 1, 'Delivered', '2025-11-01 10:00:00'),
+(6, 2, 'Delivered', '2025-11-01 09:00:00');
+
+-- Employee_Exception
+INSERT INTO Employee_Exception (employee_id, exception_id) VALUES
+(5, 1),
+(6, 1);
+
+-- ManagerNotes
+INSERT INTO ManagerNotes (employee_id, manager_id, note_content) VALUES
+(5, 2, 'Excellent performance'),
+(6, 2, 'Needs improvement'),
+(10, 2, 'Good progress');
+
+-- ApprovalWorkflowStep
+INSERT INTO ApprovalWorkflowStep (workflow_id, step_number, role_id, action_required) VALUES
+(1, 1, 4, 'Review'),
+(1, 2, 2, 'Final Approval');
+
+GO
+
+PRINT 'Data insertion completed!';
+GO
+
+GO
+
+PRINT 'Database schema created successfully!';
+GO
