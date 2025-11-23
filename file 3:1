@@ -19,41 +19,61 @@ GO
 --p2
 GO
 CREATE PROCEDURE AddEmployee
-    @FirstName VARCHAR(50),
-    @LastName VARCHAR(50),
+    @FullName VARCHAR(200),
+    @NationalID VARCHAR(50),
+    @DateOfBirth DATE,
+    @CountryOfBirth VARCHAR(100),
+    @Phone VARCHAR(50),
     @Email VARCHAR(100),
+    @Address VARCHAR(255),
+    @EmergencyContactName VARCHAR(100),
+    @EmergencyContactPhone VARCHAR(50),
+    @Relationship VARCHAR(50),
+    @Biography VARCHAR(MAX),
+    @EmploymentProgress VARCHAR(100),
+    @AccountStatus VARCHAR(50),
+    @EmploymentStatus VARCHAR(50),
+    @HireDate DATE,
+    @IsActive BIT,
+    @ProfileCompletion INT,
     @DepartmentID INT,
     @PositionID INT,
-    @HireDate DATE
+    @ManagerID INT,
+    @ContractID INT,
+    @TaxFormID INT,
+    @SalaryTypeID INT,
+    @PayGrade VARCHAR(50)
 AS
 BEGIN
-    IF @FirstName IS NULL OR @LastName IS NULL OR @Email IS NULL OR @DepartmentID IS NULL OR @PositionID IS NULL OR @HireDate IS NULL
-    BEGIN
-        PRINT 'One of the inputs is null';
-        RETURN;
-    END
+    DECLARE @FirstName VARCHAR(50);
+    DECLARE @LastName VARCHAR(50);
+    DECLARE @SpacePos INT;
+    DECLARE @NewEmployeeID INT;
     
-    IF EXISTS (SELECT 1 FROM Employee WHERE email = @Email)
-    BEGIN
-        PRINT 'Email already exists';
-        RETURN;
-    END
+    SET @SpacePos = CHARINDEX(' ', @FullName);
+    SET @FirstName = LEFT(@FullName, @SpacePos - 1);
+    SET @LastName = SUBSTRING(@FullName, @SpacePos + 1, LEN(@FullName));
     
-    IF NOT EXISTS (SELECT 1 FROM Department WHERE department_id = @DepartmentID)
-    BEGIN
-        PRINT 'Department not found';
-        RETURN;
-    END
+    INSERT INTO Employee (
+        first_name, last_name, national_id, date_of_birth, country_of_birth,
+        phone, email, address, emergency_contact_name, emergency_contact_phone,
+        relationship, biography, employment_progress, account_status,
+        employment_status, hire_date, is_active, profile_completion,
+        department_id, position_id, manager_id, contract_id, tax_form_id,
+        salary_type_id, pay_grade
+    )
+    VALUES (
+        @FirstName, @LastName, @NationalID, @DateOfBirth, @CountryOfBirth,
+        @Phone, @Email, @Address, @EmergencyContactName, @EmergencyContactPhone,
+        @Relationship, @Biography, @EmploymentProgress, @AccountStatus,
+        @EmploymentStatus, @HireDate, @IsActive, @ProfileCompletion,
+        @DepartmentID, @PositionID, @ManagerID, @ContractID, @TaxFormID,
+        @SalaryTypeID, @PayGrade
+    );
     
-    IF NOT EXISTS (SELECT 1 FROM Position WHERE position_id = @PositionID)
-    BEGIN
-        PRINT 'Position not found';
-        RETURN;
-    END
+    SET @NewEmployeeID = (SELECT MAX(employee_id) FROM Employee);
     
-    INSERT INTO Employee (first_name, last_name, email, department_id, position_id, hire_date)
-    VALUES (@FirstName, @LastName, @Email, @DepartmentID, @PositionID, @HireDate);
-    
+    SELECT @NewEmployeeID AS NewEmployeeID;
     PRINT 'Employee added successfully';
 END;
 GO
@@ -154,8 +174,6 @@ GO
 --p9
 GO
 CREATE PROCEDURE ViewOrgHierarchy
-    @AffectedEmployees VARCHAR(500),
-    @Message VARCHAR(200)
 AS
 BEGIN
     SELECT 
@@ -322,13 +340,15 @@ GO
 --p18
 GO
 CREATE PROCEDURE LogAttendanceEdit
-    @HolidayID INT
+    @AttendanceID INT,
+    @EditedBy INT,
+    @OldValue DATETIME,
+    @NewValue DATETIME,
+    @EditTimestamp DATETIME
 AS
 BEGIN
     INSERT INTO AttendanceLog (attendance_id, actor, timestamp, reason)
-    SELECT attendance_id, NULL, CURRENT_TIMESTAMP, 'Holiday applied'
-    FROM Attendance
-    WHERE exception_id = @HolidayID;
+    VALUES (@AttendanceID, @EditedBy, @EditTimestamp, 'Attendance edited');
     
     PRINT 'Attendance edit logged successfully';
 END;
@@ -337,19 +357,13 @@ GO
 --p19
 GO
 CREATE PROCEDURE ApplyHolidayOverrides
-    @AttendanceID INT,
-    @EditedBy INT,
-    @OldValue DATETIME,
-    @NewValue DATETIME,
-    @EditTimestamp DATETIME
+    @HolidayID INT,
+    @employeeID INT
 AS
 BEGIN
     UPDATE Attendance
-    SET entry_time = @NewValue
-    WHERE attendance_id = @AttendanceID;
-    
-    INSERT INTO AttendanceLog (attendance_id, actor, timestamp, reason)
-    VALUES (@AttendanceID, @EditedBy, @EditTimestamp, 'Holiday override applied');
+    SET exception_id = @HolidayID
+    WHERE employee_id = @employeeID;
     
     PRINT 'Holiday override applied successfully';
 END;
