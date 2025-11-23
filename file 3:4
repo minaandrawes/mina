@@ -1,1 +1,75 @@
+--p1
+GO
+CREATE PROCEDURE ReviewLeaveRequest
+    @LeaveRequestID INT,
+    @ManagerID INT,
+    @Decision VARCHAR(20)
+AS
+BEGIN
+    UPDATE LeaveRequest
+    SET status = @Decision
+    WHERE request_id = @LeaveRequestID;
+    
+    SELECT @LeaveRequestID AS LeaveRequestID, @ManagerID AS ManagerID, @Decision AS Decision;
+    PRINT 'Leave request reviewed successfully';
+END;
+GO
 
+--p2
+GO
+CREATE PROCEDURE AssignShift
+    @EmployeeID INT,
+    @ShiftID INT
+AS
+BEGIN
+    INSERT INTO ShiftAssignment (employee_id, shift_id, status)
+    VALUES (@EmployeeID, @ShiftID, 'Active');
+    
+    PRINT 'Shift assigned successfully';
+END;
+GO
+
+--p3
+GO
+CREATE PROCEDURE ViewTeamAttendance
+    @ManagerID INT,
+    @DateRangeStart DATE,
+    @DateRangeEnd DATE
+AS
+BEGIN
+    SELECT 
+        a.attendance_id,
+        e.full_name AS employee_name,
+        a.entry_time,
+        a.exit_time,
+        a.duration
+    FROM Attendance a
+    INNER JOIN Employee e ON a.employee_id = e.employee_id
+    WHERE e.manager_id = @ManagerID
+    AND a.entry_time >= @DateRangeStart
+    AND a.entry_time <= @DateRangeEnd;
+END;
+GO
+
+--p4
+GO
+CREATE PROCEDURE SendTeamNotification
+    @ManagerID INT,
+    @MessageContent VARCHAR(500),
+    @UrgencyLevel VARCHAR(50)
+AS
+BEGIN
+    DECLARE @NotificationID INT;
+    
+    INSERT INTO Notification (message_content, urgency)
+    VALUES (@MessageContent, @UrgencyLevel);
+    
+    SET @NotificationID = (SELECT MAX(notification_id) FROM Notification);
+    INSERT INTO Employee_Notification (employee_id, notification_id)
+    SELECT employee_id, @NotificationID
+    FROM Employee
+    WHERE manager_id = @ManagerID;
+    
+    PRINT 'Team notification sent successfully';
+END;
+GO
