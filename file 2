@@ -1,8 +1,3 @@
--- =============================================
--- HRMS Data Insertion Script
--- Covers ALL scenarios from ALL User Stories
--- =============================================
-
 -- Currency
 INSERT INTO Currency (CurrencyCode, CurrencyName, ExchangeRate) VALUES
 ('USD', 'US Dollar', 1.0000),
@@ -196,9 +191,6 @@ INSERT INTO ApprovalWorkflow (workflow_type, threshold_amount, approver_role, st
 ('Leave Approval', 0.00, 'Line Manager', 'Active'),
 ('Reimbursement', 1000.00, 'HR Admin', 'Active');
 
--- =============================================
--- EMPLOYEES
--- =============================================
 
 INSERT INTO Employee (first_name, last_name, national_id, date_of_birth, country_of_birth, phone, email, address, emergency_contact_name, emergency_contact_phone, relationship, hire_date, is_active, profile_completion, department_id, position_id, contract_id, tax_form_id, salary_type_id, pay_grade) VALUES
 ('Ahmed', 'Hassan', 'EG100', '1975-05-15', 'Egypt', '0101111111', 'ahmed@company.com', 'Cairo', 'Sara', '0109999999', 'Spouse', '2018-01-01', 1, 100, 1, 5, 1, 1, 1, 4),
@@ -403,9 +395,4 @@ INSERT INTO ApprovalWorkflowStep (workflow_id, step_number, role_id, action_requ
 GO
 
 PRINT 'Data insertion completed!';
-GO
-
-GO
-
-PRINT 'Database schema created successfully!';
 GO
