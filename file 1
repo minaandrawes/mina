@@ -1,14 +1,6 @@
--- =============================================
--- HRMS Database Schema Creation Script
--- =============================================
-
 SET ANSI_NULLS ON;
 SET QUOTED_IDENTIFIER ON;
 GO
-
--- =============================================
--- INDEPENDENT TABLES (No Foreign Keys)
--- =============================================
 
 CREATE TABLE Currency (
     CurrencyCode VARCHAR(10) PRIMARY KEY,
