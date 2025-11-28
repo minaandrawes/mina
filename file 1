@@ -274,10 +274,6 @@ CREATE TABLE ApprovalWorkflow (
     status VARCHAR(20) DEFAULT 'Active'
 );
 
--- =============================================
--- EMPLOYEE TABLE
--- =============================================
-
 CREATE TABLE Employee (
     employee_id INT PRIMARY KEY IDENTITY(1,1),
     first_name VARCHAR(50) NOT NULL,
@@ -354,10 +350,6 @@ CREATE TABLE LineManager (
     FOREIGN KEY (employee_id) REFERENCES Employee(employee_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- =============================================
--- EMPLOYEE RELATIONSHIP TABLES
--- =============================================
-
 CREATE TABLE Employee_Role (
     employee_id INT NOT NULL,
     role_id INT NOT NULL,
@@ -410,10 +402,6 @@ CREATE TABLE EmployeeHierarchy (
     FOREIGN KEY (employee_id) REFERENCES Employee(employee_id),
     FOREIGN KEY (manager_id) REFERENCES Employee(employee_id)
 );
-
--- =============================================
--- EMPLOYEE-DEPENDENT TABLES
--- =============================================
 
 CREATE TABLE Device (
     device_id INT PRIMARY KEY IDENTITY(1,1),
