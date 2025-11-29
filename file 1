@@ -1,4 +1,6 @@
 SET ANSI_NULLS ON;
+GO
+
 SET QUOTED_IDENTIFIER ON;
 GO
 
@@ -10,6 +12,7 @@ CREATE TABLE Currency (
     LastUpdated DATETIME DEFAULT GETDATE()
 );
 
+GO
 CREATE TABLE Department (
     department_id INT PRIMARY KEY IDENTITY(1,1),
     department_name VARCHAR(100) NOT NULL,
@@ -17,6 +20,7 @@ CREATE TABLE Department (
     department_head_id INT NULL
 );
 
+GO
 CREATE TABLE Position (
     position_id INT PRIMARY KEY IDENTITY(1,1),
     position_title VARCHAR(100) NOT NULL,
@@ -24,12 +28,14 @@ CREATE TABLE Position (
     status VARCHAR(20) DEFAULT 'Active'
 );
 
+GO
 CREATE TABLE Role (
     role_id INT PRIMARY KEY IDENTITY(1,1),
     role_name VARCHAR(50) NOT NULL,
     purpose VARCHAR(255)
 );
 
+GO
 CREATE TABLE RolePermission (
     role_id INT NOT NULL,
     permission_name VARCHAR(100) NOT NULL,
@@ -38,12 +44,14 @@ CREATE TABLE RolePermission (
     FOREIGN KEY (role_id) REFERENCES Role(role_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE Skill (
     skill_id INT PRIMARY KEY IDENTITY(1,1),
     skill_name VARCHAR(100) NOT NULL,
     description VARCHAR(500)
 );
 
+GO
 CREATE TABLE Verification (
     verification_id INT PRIMARY KEY IDENTITY(1,1),
     verification_type VARCHAR(50) NOT NULL,
@@ -52,6 +60,7 @@ CREATE TABLE Verification (
     expiry_period DATE
 );
 
+GO
 CREATE TABLE TaxForm (
     tax_form_id INT PRIMARY KEY IDENTITY(1,1),
     jurisdiction VARCHAR(100) NOT NULL,
@@ -59,6 +68,7 @@ CREATE TABLE TaxForm (
     form_content VARCHAR(MAX)
 );
 
+GO
 CREATE TABLE PayGrade (
     pay_grade_id INT PRIMARY KEY IDENTITY(1,1),
     grade_name VARCHAR(50) NOT NULL,
@@ -66,6 +76,7 @@ CREATE TABLE PayGrade (
     max_salary DECIMAL(10,2) NOT NULL
 );
 
+GO
 CREATE TABLE Insurance (
     insurance_id INT PRIMARY KEY IDENTITY(1,1),
     type VARCHAR(50) NOT NULL,
@@ -73,6 +84,7 @@ CREATE TABLE Insurance (
     coverage VARCHAR(500)
 );
 
+GO
 CREATE TABLE Contract (
     contract_id INT PRIMARY KEY IDENTITY(1,1),
     type VARCHAR(50) NOT NULL,
@@ -81,6 +93,7 @@ CREATE TABLE Contract (
     current_state VARCHAR(50) DEFAULT 'Active'
 );
 
+GO
 CREATE TABLE FullTimeContract (
     contract_id INT PRIMARY KEY,
     leave_entitlement INT,
@@ -89,6 +102,7 @@ CREATE TABLE FullTimeContract (
     FOREIGN KEY (contract_id) REFERENCES Contract(contract_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE PartTimeContract (
     contract_id INT PRIMARY KEY,
     working_hours INT,
@@ -96,6 +110,7 @@ CREATE TABLE PartTimeContract (
     FOREIGN KEY (contract_id) REFERENCES Contract(contract_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE ConsultantContract (
     contract_id INT PRIMARY KEY,
     project_scope VARCHAR(500),
@@ -104,6 +119,7 @@ CREATE TABLE ConsultantContract (
     FOREIGN KEY (contract_id) REFERENCES Contract(contract_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE InternshipContract (
     contract_id INT PRIMARY KEY,
     mentoring VARCHAR(200),
@@ -112,6 +128,7 @@ CREATE TABLE InternshipContract (
     FOREIGN KEY (contract_id) REFERENCES Contract(contract_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE SalaryType (
     salary_type_id INT PRIMARY KEY IDENTITY(1,1),
     type VARCHAR(50) NOT NULL,
@@ -120,6 +137,7 @@ CREATE TABLE SalaryType (
     FOREIGN KEY (currency) REFERENCES Currency(CurrencyName)
 );
 
+GO
 CREATE TABLE HourlySalaryType (
     salary_type_id INT PRIMARY KEY,
     hourly_rate DECIMAL(10,2),
@@ -127,6 +145,7 @@ CREATE TABLE HourlySalaryType (
     FOREIGN KEY (salary_type_id) REFERENCES SalaryType(salary_type_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE MonthlySalaryType (
     salary_type_id INT PRIMARY KEY,
     tax_rule VARCHAR(200),
@@ -134,6 +153,7 @@ CREATE TABLE MonthlySalaryType (
     FOREIGN KEY (salary_type_id) REFERENCES SalaryType(salary_type_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE ContractSalaryType (
     salary_type_id INT PRIMARY KEY,
     contract_value DECIMAL(10,2),
@@ -141,6 +161,7 @@ CREATE TABLE ContractSalaryType (
     FOREIGN KEY (salary_type_id) REFERENCES SalaryType(salary_type_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE ShiftSchedule (
     shift_id INT PRIMARY KEY IDENTITY(1,1),
     name VARCHAR(50) NOT NULL,
@@ -152,12 +173,14 @@ CREATE TABLE ShiftSchedule (
     status VARCHAR(20) DEFAULT 'Active'
 );
 
+GO
 CREATE TABLE ShiftCycle (
     cycle_id INT PRIMARY KEY IDENTITY(1,1),
     cycle_name VARCHAR(50) NOT NULL,
     description VARCHAR(200)
 );
 
+GO
 CREATE TABLE ShiftCycleAssignment (
     cycle_id INT NOT NULL,
     shift_id INT NOT NULL,
@@ -167,6 +190,7 @@ CREATE TABLE ShiftCycleAssignment (
     FOREIGN KEY (shift_id) REFERENCES ShiftSchedule(shift_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE Exception (
     exception_id INT PRIMARY KEY IDENTITY(1,1),
     name VARCHAR(100) NOT NULL,
@@ -175,12 +199,14 @@ CREATE TABLE Exception (
     status VARCHAR(20) DEFAULT 'Active'
 );
 
+GO
 CREATE TABLE Leave (
     leave_id INT PRIMARY KEY IDENTITY(1,1),
     leave_type VARCHAR(50) NOT NULL,
     leave_description VARCHAR(500)
 );
 
+GO
 CREATE TABLE VacationLeave (
     leave_id INT PRIMARY KEY,
     carry_over_days INT,
@@ -188,6 +214,7 @@ CREATE TABLE VacationLeave (
     FOREIGN KEY (leave_id) REFERENCES Leave(leave_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE SickLeave (
     leave_id INT PRIMARY KEY,
     medical_cert_required BIT DEFAULT 0,
@@ -195,6 +222,7 @@ CREATE TABLE SickLeave (
     FOREIGN KEY (leave_id) REFERENCES Leave(leave_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE ProbationLeave (
     leave_id INT PRIMARY KEY,
     eligibility_start_date DATE,
@@ -202,6 +230,7 @@ CREATE TABLE ProbationLeave (
     FOREIGN KEY (leave_id) REFERENCES Leave(leave_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE HolidayLeave (
     leave_id INT PRIMARY KEY,
     holiday_name VARCHAR(100),
@@ -210,6 +239,7 @@ CREATE TABLE HolidayLeave (
     FOREIGN KEY (leave_id) REFERENCES Leave(leave_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE LeavePolicy (
     policy_id INT PRIMARY KEY IDENTITY(1,1),
     name VARCHAR(100) NOT NULL,
@@ -220,6 +250,7 @@ CREATE TABLE LeavePolicy (
     reset_on_new_year BIT DEFAULT 1
 );
 
+GO
 CREATE TABLE PayrollPolicy (
     policy_id INT PRIMARY KEY IDENTITY(1,1),
     effective_date DATE NOT NULL,
@@ -227,6 +258,7 @@ CREATE TABLE PayrollPolicy (
     description VARCHAR(500)
 );
 
+GO
 CREATE TABLE OvertimePolicy (
     policy_id INT PRIMARY KEY,
     weekday_rate_multiplier DECIMAL(3,2),
@@ -235,6 +267,7 @@ CREATE TABLE OvertimePolicy (
     FOREIGN KEY (policy_id) REFERENCES PayrollPolicy(policy_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE LatenessPolicy (
     policy_id INT PRIMARY KEY,
     grace_period_mins INT,
@@ -242,6 +275,7 @@ CREATE TABLE LatenessPolicy (
     FOREIGN KEY (policy_id) REFERENCES PayrollPolicy(policy_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE BonusPolicy (
     policy_id INT PRIMARY KEY,
     bonus_type VARCHAR(50),
@@ -249,6 +283,7 @@ CREATE TABLE BonusPolicy (
     FOREIGN KEY (policy_id) REFERENCES PayrollPolicy(policy_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE DeductionPolicy (
     policy_id INT PRIMARY KEY,
     deduction_reason VARCHAR(200),
@@ -256,6 +291,7 @@ CREATE TABLE DeductionPolicy (
     FOREIGN KEY (policy_id) REFERENCES PayrollPolicy(policy_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE Notification (
     notification_id INT PRIMARY KEY IDENTITY(1,1),
     message_content VARCHAR(500) NOT NULL,
@@ -265,6 +301,7 @@ CREATE TABLE Notification (
     notification_type VARCHAR(50)
 );
 
+GO
 CREATE TABLE ApprovalWorkflow (
     workflow_id INT PRIMARY KEY IDENTITY(1,1),
     workflow_type VARCHAR(50) NOT NULL,
@@ -274,6 +311,7 @@ CREATE TABLE ApprovalWorkflow (
     status VARCHAR(20) DEFAULT 'Active'
 );
 
+GO
 CREATE TABLE Employee (
     employee_id INT PRIMARY KEY IDENTITY(1,1),
     first_name VARCHAR(50) NOT NULL,
@@ -312,12 +350,12 @@ CREATE TABLE Employee (
     FOREIGN KEY (pay_grade) REFERENCES PayGrade(pay_grade_id)
 );
 
--- Add FK to Department after Employee is created
+GO
 ALTER TABLE Department
 ADD CONSTRAINT FK_Department_Head 
 FOREIGN KEY (department_head_id) REFERENCES Employee(employee_id);
 
--- Employee Specialization Tables
+GO
 CREATE TABLE HRAdministrator (
     employee_id INT PRIMARY KEY,
     approval_level VARCHAR(50),
@@ -326,6 +364,7 @@ CREATE TABLE HRAdministrator (
     FOREIGN KEY (employee_id) REFERENCES Employee(employee_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE SystemAdministrator (
     employee_id INT PRIMARY KEY,
     system_privilege_level VARCHAR(50),
@@ -334,6 +373,7 @@ CREATE TABLE SystemAdministrator (
     FOREIGN KEY (employee_id) REFERENCES Employee(employee_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE PayrollSpecialist (
     employee_id INT PRIMARY KEY,
     assigned_region VARCHAR(100),
@@ -342,6 +382,7 @@ CREATE TABLE PayrollSpecialist (
     FOREIGN KEY (employee_id) REFERENCES Employee(employee_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE LineManager (
     employee_id INT PRIMARY KEY,
     team_size INT,
@@ -350,6 +391,7 @@ CREATE TABLE LineManager (
     FOREIGN KEY (employee_id) REFERENCES Employee(employee_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE Employee_Role (
     employee_id INT NOT NULL,
     role_id INT NOT NULL,
@@ -359,6 +401,7 @@ CREATE TABLE Employee_Role (
     FOREIGN KEY (role_id) REFERENCES Role(role_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE Employee_Skill (
     employee_id INT NOT NULL,
     skill_id INT NOT NULL,
@@ -368,6 +411,7 @@ CREATE TABLE Employee_Skill (
     FOREIGN KEY (skill_id) REFERENCES Skill(skill_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE Employee_Verification (
     employee_id INT NOT NULL,
     verification_id INT NOT NULL,
@@ -376,6 +420,7 @@ CREATE TABLE Employee_Verification (
     FOREIGN KEY (verification_id) REFERENCES Verification(verification_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE Employee_Exception (
     employee_id INT NOT NULL,
     exception_id INT NOT NULL,
@@ -384,6 +429,7 @@ CREATE TABLE Employee_Exception (
     FOREIGN KEY (exception_id) REFERENCES Exception(exception_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE Employee_Notification (
     employee_id INT NOT NULL,
     notification_id INT NOT NULL,
@@ -394,6 +440,7 @@ CREATE TABLE Employee_Notification (
     FOREIGN KEY (notification_id) REFERENCES Notification(notification_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE EmployeeHierarchy (
     employee_id INT NOT NULL,
     manager_id INT NOT NULL,
@@ -403,6 +450,7 @@ CREATE TABLE EmployeeHierarchy (
     FOREIGN KEY (manager_id) REFERENCES Employee(employee_id)
 );
 
+GO
 CREATE TABLE Device (
     device_id INT PRIMARY KEY IDENTITY(1,1),
     device_type VARCHAR(50),
@@ -413,6 +461,7 @@ CREATE TABLE Device (
     FOREIGN KEY (employee_id) REFERENCES Employee(employee_id)
 );
 
+GO
 CREATE TABLE ShiftAssignment (
     assignment_id INT PRIMARY KEY IDENTITY(1,1),
     employee_id INT NOT NULL,
@@ -424,6 +473,7 @@ CREATE TABLE ShiftAssignment (
     FOREIGN KEY (shift_id) REFERENCES ShiftSchedule(shift_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE Attendance (
     attendance_id INT PRIMARY KEY IDENTITY(1,1),
     employee_id INT NOT NULL,
@@ -439,6 +489,7 @@ CREATE TABLE Attendance (
     FOREIGN KEY (exception_id) REFERENCES Exception(exception_id) ON DELETE SET NULL ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE AttendanceLog (
     attendance_log_id INT IDENTITY(1,1),
     attendance_id INT NOT NULL,
@@ -449,6 +500,7 @@ CREATE TABLE AttendanceLog (
     FOREIGN KEY (attendance_id) REFERENCES Attendance(attendance_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE AttendanceCorrectionRequest (
     request_id INT PRIMARY KEY IDENTITY(1,1),
     employee_id INT NOT NULL,
@@ -461,6 +513,7 @@ CREATE TABLE AttendanceCorrectionRequest (
     FOREIGN KEY (recorded_by) REFERENCES Employee(employee_id)
 );
 
+GO
 CREATE TABLE AttendanceSource (
     attendance_id INT NOT NULL,
     device_id INT NOT NULL,
@@ -473,6 +526,7 @@ CREATE TABLE AttendanceSource (
     FOREIGN KEY (device_id) REFERENCES Device(device_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE LeaveRequest (
     request_id INT PRIMARY KEY IDENTITY(1,1),
     employee_id INT NOT NULL,
@@ -485,6 +539,7 @@ CREATE TABLE LeaveRequest (
     FOREIGN KEY (leave_id) REFERENCES Leave(leave_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE LeaveEntitlement (
     employee_id INT NOT NULL,
     leave_type_id INT NOT NULL,
@@ -494,6 +549,7 @@ CREATE TABLE LeaveEntitlement (
     FOREIGN KEY (leave_type_id) REFERENCES Leave(leave_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE LeaveDocument (
     document_id INT PRIMARY KEY IDENTITY(1,1),
     leave_request_id INT NOT NULL,
@@ -502,6 +558,7 @@ CREATE TABLE LeaveDocument (
     FOREIGN KEY (leave_request_id) REFERENCES LeaveRequest(request_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE Mission (
     mission_id INT PRIMARY KEY IDENTITY(1,1),
     destination VARCHAR(100),
@@ -514,6 +571,7 @@ CREATE TABLE Mission (
     FOREIGN KEY (manager_id) REFERENCES Employee(employee_id)
 );
 
+GO
 CREATE TABLE Reimbursement (
     reimbursement_id INT PRIMARY KEY IDENTITY(1,1),
     type VARCHAR(50),
@@ -524,6 +582,7 @@ CREATE TABLE Reimbursement (
     FOREIGN KEY (employee_id) REFERENCES Employee(employee_id)
 );
 
+GO
 CREATE TABLE Termination (
     termination_id INT PRIMARY KEY IDENTITY(1,1),
     date DATE NOT NULL,
@@ -532,6 +591,7 @@ CREATE TABLE Termination (
     FOREIGN KEY (contract_id) REFERENCES Contract(contract_id)
 );
 
+GO
 CREATE TABLE Payroll (
     payroll_id INT PRIMARY KEY IDENTITY(1,1),
     employee_id INT NOT NULL,
@@ -547,6 +607,7 @@ CREATE TABLE Payroll (
     FOREIGN KEY (employee_id) REFERENCES Employee(employee_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE PayrollPeriod (
     payroll_period_id INT PRIMARY KEY IDENTITY(1,1),
     payroll_id INT NOT NULL,
@@ -556,6 +617,7 @@ CREATE TABLE PayrollPeriod (
     FOREIGN KEY (payroll_id) REFERENCES Payroll(payroll_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE AllowanceDeduction (
     ad_id INT IDENTITY(1,1),
     payroll_id INT NOT NULL,
@@ -571,6 +633,7 @@ CREATE TABLE AllowanceDeduction (
     FOREIGN KEY (currency) REFERENCES Currency(CurrencyName)
 );
 
+GO
 CREATE TABLE PayrollPolicy_ID (
     payroll_id INT NOT NULL,
     policy_id INT NOT NULL,
@@ -579,6 +642,7 @@ CREATE TABLE PayrollPolicy_ID (
     FOREIGN KEY (policy_id) REFERENCES PayrollPolicy(policy_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE Payroll_Log (
     payroll_log_id INT IDENTITY(1,1),
     payroll_id INT NOT NULL,
@@ -589,6 +653,7 @@ CREATE TABLE Payroll_Log (
     FOREIGN KEY (payroll_id) REFERENCES Payroll(payroll_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+GO
 CREATE TABLE ManagerNotes (
     note_id INT PRIMARY KEY IDENTITY(1,1),
     employee_id INT NOT NULL,
@@ -599,6 +664,7 @@ CREATE TABLE ManagerNotes (
     FOREIGN KEY (manager_id) REFERENCES Employee(employee_id)
 );
 
+GO
 CREATE TABLE ApprovalWorkflowStep (
     workflow_id INT NOT NULL,
     step_number INT NOT NULL,
