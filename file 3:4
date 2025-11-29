@@ -131,12 +131,13 @@ CREATE PROCEDURE ReassignShift
     @EmployeeID INT, 
     @OldShiftID INT, 
     @NewShiftID INT 
-  AS
-  BEGIN
-  INSERT INTO ShiftAssignment (employee_id, shift_id, status)
-    VALUES (@EmployeeID, @NewShiftID, 'Active');
+AS
+BEGIN
+    UPDATE ShiftAssignment
+    SET shift_id = @NewShiftID
+    WHERE employee_id = @EmployeeID AND shift_id = @OldShiftID;
     
-    PRINT 'Shift reassigned to employee successfully';
+    PRINT 'Shift reassigned successfully';
 END;
 GO
 
@@ -146,11 +147,289 @@ CREATE PROCEDURE GetPendingLeaveRequests
    @ManagerID INT
   AS
   BEGIN
-  SELECT lr.employee_id, lr.request_id
+  SELECT e.full_name, lr.employee_id, lr.request_id
   FROM LeaveRequest lr
   INNER JOIN Employee e ON lr.employee_id = e.employee_id
-  WHERE @ManagerID = e.manager_id AND lr.status LIKE 'Pending';
+  WHERE e.manager_id = @ManagerID AND lr.status = 'Pending';
   
   END;
   GO
   
+--p10
+GO
+CREATE PROCEDURE GetTeamStatistics
+    @ManagerID INT
+AS
+BEGIN
+    SELECT COUNT(e.employee_id) AS team_size, AVG(p.base_amount) AS average_salary, @ManagerID AS manager_id
+    FROM Employee e
+    LEFT JOIN Payroll p ON e.employee_id = p.employee_id
+    WHERE e.manager_id = @ManagerID;
+END;
+GO
+
+--p11
+GO
+CREATE PROCEDURE ViewTeamProfiles
+    @ManagerID INT
+AS
+BEGIN
+    SELECT 
+        e.employee_id,
+        e.full_name,
+        e.email,
+        e.phone,
+        d.department_name,
+        p.position_title
+    FROM Employee e
+    INNER JOIN Department d ON e.department_id = d.department_id
+    INNER JOIN Position p ON e.position_id = p.position_id
+    WHERE e.manager_id = @ManagerID;
+END;
+GO
+
+--p12
+GO
+CREATE PROCEDURE GetTeamSummary
+    @ManagerID INT
+AS
+BEGIN
+    SELECT 
+        r.role_name,
+        COUNT(e.employee_id) AS employee_count,
+        AVG(DATEDIFF(YEAR, e.hire_date, GETDATE())) AS average_tenure,
+        d.department_name
+    FROM Employee e
+    INNER JOIN Employee_Role er ON e.employee_id = er.employee_id
+    INNER JOIN Role r ON er.role_id = r.role_id
+    INNER JOIN Department d ON e.department_id = d.department_id
+    WHERE e.manager_id = @ManagerID
+    GROUP BY r.role_name, d.department_name;
+END;
+GO
+
+--p13
+GO
+CREATE PROCEDURE FilterTeamProfiles
+    @ManagerID INT,
+    @Skill VARCHAR(50),
+    @RoleID INT
+AS
+BEGIN
+    SELECT 
+        e.employee_id,
+        e.full_name,
+        s.skill_name,
+        r.role_name
+    FROM Employee e
+    LEFT JOIN Employee_Skill es ON e.employee_id = es.employee_id
+    LEFT JOIN Skill s ON es.skill_id = s.skill_id
+    INNER JOIN Employee_Role er ON e.employee_id = er.employee_id
+    INNER JOIN Role r ON er.role_id = r.role_id
+    WHERE e.manager_id = @ManagerID
+    AND (s.skill_name = @Skill OR @Skill IS NULL)
+    AND (r.role_id = @RoleID OR @RoleID IS NULL);
+END;
+GO
+
+--p14
+GO
+CREATE PROCEDURE ViewTeamCertifications
+    @ManagerID INT
+AS
+BEGIN
+    SELECT 
+        e.full_name,
+        s.skill_name,
+        es.proficiency_level,
+        v.verification_type
+    FROM Employee e
+    LEFT JOIN Employee_Skill es ON e.employee_id = es.employee_id
+    LEFT JOIN Skill s ON es.skill_id = s.skill_id
+    LEFT JOIN Employee_Verification ev ON e.employee_id = ev.employee_id
+    LEFT JOIN Verification v ON ev.verification_id = v.verification_id
+    WHERE e.manager_id = @ManagerID;
+END;
+GO
+
+--p15
+GO
+CREATE PROCEDURE AddManagerNotes
+    @EmployeeID INT,
+    @ManagerID INT,
+    @Note VARCHAR(500)
+AS
+BEGIN
+    INSERT INTO ManagerNotes (employee_id, manager_id, note_content, created_at)
+    VALUES (@EmployeeID, @ManagerID, @Note, CURRENT_TIMESTAMP);
+    
+    PRINT 'Manager notes are added successfully';
+END;
+GO
+
+--p16
+GO
+CREATE PROCEDURE RecordManualAttendance
+    @EmployeeID INT,
+    @Date DATE,
+    @ClockIn TIME,
+    @ClockOut TIME,
+    @Reason VARCHAR(200),
+    @RecordedBy INT
+AS
+BEGIN
+    DECLARE @Duration INT;
+    SET @Duration = DATEDIFF(MINUTE, @ClockIn, @ClockOut);
+    
+    INSERT INTO Attendance (employee_id, entry_time, exit_time, duration, login_method, logout_method)
+    VALUES (@EmployeeID, @ClockIn, @ClockOut, @Duration, 'Manual', 'Manual');
+    
+    INSERT INTO AttendanceLog (attendance_id, actor, timestamp, reason)
+    VALUES ((SELECT MAX(a.attendance_id) FROM Attendance a), @RecordedBy, CURRENT_TIMESTAMP, @Reason);
+    
+    PRINT 'Manual attendance recorded';
+END;
+GO
+
+--p17
+GO
+CREATE PROCEDURE ReviewMissedPunches
+    @ManagerID INT,
+    @Date DATE
+AS
+BEGIN
+    SELECT 
+    e.full_name,
+        a.attendance_id,
+        a.entry_time,
+        a.exit_time
+    FROM Attendance a
+    INNER JOIN Employee e ON a.employee_id = e.employee_id
+    WHERE e.manager_id = @ManagerID
+    AND (a.entry_time IS NULL OR a.exit_time IS NULL)
+    AND a.entry_time = @Date;
+END;
+GO
+
+--p18
+GO
+CREATE PROCEDURE ApproveTimeRequest
+    @RequestID INT,
+    @ManagerID INT,
+    @Decision VARCHAR(20),
+    @Comments VARCHAR(200)
+AS
+BEGIN
+    UPDATE AttendanceCorrectionRequest
+    SET status = @Decision
+    WHERE request_id = @RequestID;
+    
+    PRINT 'Successful time request processing';
+END;
+GO
+
+--p19
+GO
+CREATE PROCEDURE ViewLeaveRequest
+    @LeaveRequestID INT,
+    @ManagerID INT
+AS
+BEGIN
+    SELECT 
+    e.full_name,
+        lr.request_id,
+        lr.justification,
+        lr.duration,
+        lr.status
+    FROM LeaveRequest lr INNER JOIN Employee e ON lr.employee_id = e.employee_id
+    WHERE lr.request_id = @LeaveRequestID AND e.manager_id = @ManagerID;
+END;
+GO
+
+--p20
+GO
+CREATE PROCEDURE ApproveLeaveRequest
+    @LeaveRequestID INT,
+    @ManagerID INT
+AS
+BEGIN
+    UPDATE LeaveRequest
+    SET status = 'Approved',
+        approval_timing = CURRENT_TIMESTAMP
+    WHERE request_id = @LeaveRequestID;
+    
+    PRINT 'Leave request approved';
+END;
+GO
+
+--p21
+GO
+CREATE PROCEDURE RejectLeaveRequest
+    @LeaveRequestID INT,
+    @ManagerID INT,
+    @Reason VARCHAR(200)
+AS
+BEGIN
+    UPDATE LeaveRequest
+    SET status = 'Rejected'
+    WHERE request_id = @LeaveRequestID;
+    
+    PRINT 'Leave request rejected';
+END;
+GO
+
+--p22
+GO
+CREATE PROCEDURE DelegateLeaveApproval
+    @ManagerID INT,
+    @DelegateID INT,
+    @StartDate DATE,
+    @EndDate DATE
+AS
+BEGIN
+    UPDATE Employee
+    SET manager_id = @DelegateID
+    WHERE manager_id = @ManagerID;
+    
+    PRINT 'Leave approval authority delegated successfully';
+END;
+GO
+
+--p23
+GO
+CREATE PROCEDURE FlagIrregularLeave
+    @EmployeeID INT,
+    @ManagerID INT,
+    @PatternDescription VARCHAR(200)
+AS
+BEGIN
+    INSERT INTO ManagerNotes (employee_id, manager_id, note_content, created_at)
+    VALUES (@EmployeeID, @ManagerID, 'Irregular Leave Pattern: ' + @PatternDescription, CURRENT_TIMESTAMP);
+    
+    PRINT 'Irregular leave pattern flagged';
+END;
+GO
+
+--p24
+GO
+CREATE PROCEDURE NotifyNewLeaveRequest
+    @ManagerID INT,
+    @RequestID INT
+AS
+BEGIN
+    DECLARE @EmployeeName VARCHAR(200);
+    
+    SELECT @EmployeeName = e.full_name
+    FROM LeaveRequest lr
+    INNER JOIN Employee e ON lr.employee_id = e.employee_id
+    WHERE lr.request_id = @RequestID;
+    
+    INSERT INTO Notification (message_content, urgency, notification_type)
+    VALUES ('New leave request from ' + @EmployeeName + ' (Request ID: ' + CAST(@RequestID AS VARCHAR) + ')', 'Normal', 'Leave');
+    
+    INSERT INTO Employee_Notification (employee_id, notification_id, delivery_status)
+    VALUES (@ManagerID, (SELECT MAX(notification_id) FROM Notification), 'Pending');
+    
+    PRINT 'Leave request notification sent successfully';
+END;
+GO
