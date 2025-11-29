@@ -73,3 +73,84 @@ BEGIN
     PRINT 'Team notification sent successfully';
 END;
 GO
+
+--p5
+GO
+CREATE PROCEDURE ApproveMissionCompletion
+    @MissionID INT,
+    @ManagerID INT,
+    @Remarks VARCHAR(200)
+AS
+BEGIN
+    UPDATE Mission
+    SET status = 'Completed'
+    WHERE mission_id = @MissionID
+    AND manager_id = @ManagerID;
+    
+    PRINT 'Mission completion approved';
+END;
+GO
+
+--p6
+GO
+CREATE PROCEDURE RequestReplacement
+@EmployeeID INT,
+@Reason VARCHAR(150)
+AS
+BEGIN
+    DECLARE @EmployeeName VARCHAR(200);
+    SELECT @EmployeeName = full_name
+    FROM Employee
+    WHERE employee_id = @EmployeeID;
+    
+    INSERT INTO Notification (message_content, urgency, notification_type)
+    VALUES ('Replacement needed for ' + @EmployeeName + ' (ID: ' + CAST(@EmployeeID AS VARCHAR) + '). Reason: ' + @Reason, 'High', 'Replacement');
+    
+    PRINT 'Replacement request submitted';
+END;
+GO
+
+--p7
+GO
+CREATE PROCEDURE ViewDepartmentSummary
+    @DepartmentID INT
+AS
+BEGIN
+    SELECT d.department_name, COUNT(e.employee_id) AS employee_count, COUNT(m.mission_id) AS projects_count
+    FROM Department d
+    LEFT JOIN Employee e ON d.department_id = e.department_id
+    LEFT JOIN Mission m ON e.employee_id = m.employee_id
+    WHERE d.department_id = @DepartmentID
+    GROUP BY d.department_id, d.department_name;
+END;
+GO
+
+--p8
+GO
+CREATE PROCEDURE ReassignShift
+    @EmployeeID INT, 
+    @OldShiftID INT, 
+    @NewShiftID INT 
+  AS
+  BEGIN
+  INSERT INTO ShiftAssignment (employee_id, shift_id, status)
+    VALUES (@EmployeeID, @NewShiftID, 'Active');
+    
+    PRINT 'Shift reassigned to employee successfully';
+END;
+GO
+
+--p9
+GO
+CREATE PROCEDURE GetPendingLeaveRequests
+   @ManagerID INT
+  AS
+  BEGIN
+  SELECT lr.employee_id, lr.request_id
+  FROM LeaveRequest lr
+  INNER JOIN Employee e ON lr.employee_id = e.employee_id
+  WHERE @ManagerID = e.manager_id AND lr.status LIKE 'Pending';
+  
+  END;
+  GO
+  
