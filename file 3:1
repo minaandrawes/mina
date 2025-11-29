@@ -1,4 +1,4 @@
---p1
+--p1.1
 GO
 CREATE PROCEDURE ViewEmployeeInfo
     @EmployeeID INT
@@ -16,7 +16,7 @@ BEGIN
 END;
 GO
 
---p2
+--p1.2
 GO
 CREATE PROCEDURE AddEmployee
     @FullName VARCHAR(200),
@@ -78,7 +78,7 @@ BEGIN
 END;
 GO
 
---p3
+--p1.3
 GO
 CREATE PROCEDURE UpdateEmployeeInfo
     @EmployeeID INT,
@@ -97,7 +97,7 @@ BEGIN
 END;
 GO
 
---p4
+--p1.4
 GO
 CREATE PROCEDURE AssignRole
     @EmployeeID INT,
@@ -111,7 +111,7 @@ BEGIN
 END;
 GO
 
---p5
+--p1.5
 GO
 CREATE PROCEDURE GetDepartmentEmployeeStats
 AS
@@ -125,7 +125,7 @@ BEGIN
 END;
 GO
 
---p6
+--p1.6
 GO
 CREATE PROCEDURE ReassignManager
     @EmployeeID INT,
@@ -140,7 +140,7 @@ BEGIN
 END;
 GO
 
---p7
+--p1.7
 GO
 CREATE PROCEDURE ReassignHierarchy
     @EmployeeID INT,
@@ -157,7 +157,7 @@ BEGIN
 END;
 GO
 
---p8
+--p1.8
 GO
 CREATE PROCEDURE NotifyStructureChange
     @AffectedEmployees VARCHAR(500),
@@ -171,7 +171,7 @@ BEGIN
 END;
 GO
 
---p9
+--p1.9
 GO
 CREATE PROCEDURE ViewOrgHierarchy
 AS
@@ -190,7 +190,7 @@ BEGIN
 END;
 GO
 
---p10
+--p1.10
 GO
 CREATE PROCEDURE AssignShiftToEmployee
     @EmployeeID INT,
@@ -206,7 +206,7 @@ BEGIN
 END;
 GO
 
---p11
+--p1.11
 GO
 CREATE PROCEDURE UpdateShiftStatus
     @ShiftAssignmentID INT,
@@ -221,7 +221,7 @@ BEGIN
 END;
 GO
 
---p12
+--p1.12
 GO
 CREATE PROCEDURE AssignShiftToDepartment
     @DepartmentID INT,
@@ -239,7 +239,7 @@ BEGIN
 END;
 GO
 
---p13
+--p1.13
 GO
 CREATE PROCEDURE AssignCustomShift
     @EmployeeID INT,
@@ -265,7 +265,7 @@ BEGIN
 END;
 GO
 
---p14
+--p1.14
 GO
 CREATE PROCEDURE ConfigureSplitShift
     @ShiftName VARCHAR(50),
@@ -284,7 +284,7 @@ BEGIN
     PRINT 'Split shift configured successfully';
 END;
 
---p15
+--p1.15
 GO
 CREATE PROCEDURE EnableFirstInLastOut
     @Enable BIT
@@ -297,7 +297,7 @@ BEGIN
 END;
 GO
 
---p16
+--p1.16
 GO
 CREATE PROCEDURE TagAttendanceSource
     @AttendanceID INT,
@@ -314,7 +314,7 @@ BEGIN
 END;
 GO
 
---p17
+--p1.17
 GO
 CREATE PROCEDURE SyncOfflineAttendance
     @DeviceID INT,
@@ -329,7 +329,7 @@ BEGIN
     ELSE
         UPDATE Attendance
         SET exit_time = @ClockTime,
-            logout_method = 'Offline Sync'
+      logout_method = 'Offline Sync'
         WHERE employee_id = @EmployeeID 
         AND exit_time IS NULL;
     
@@ -337,7 +337,7 @@ BEGIN
 END;
 GO
 
---p18
+--p1.18
 GO
 CREATE PROCEDURE LogAttendanceEdit
     @AttendanceID INT,
@@ -354,7 +354,7 @@ BEGIN
 END;
 GO
 
---p19
+--p1.19
 GO
 CREATE PROCEDURE ApplyHolidayOverrides
     @HolidayID INT,
@@ -369,7 +369,7 @@ BEGIN
 END;
 GO
 
---p20
+--p1.20
 GO
 CREATE PROCEDURE ManageUserAccounts
     @UserID INT,
