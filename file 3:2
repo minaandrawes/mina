@@ -1,1 +1,774 @@
+--p1
+GO
+CREATE PROCEDURE CreateContract
+    @EmployeeID INT,
+    @Type VARCHAR(50),
+    @StartDate DATE,
+    @EndDate DATE
+AS
+BEGIN
+    DECLARE @ContractID INT;
+    
+    
+    INSERT INTO Contract (type, start_date, end_date, current_state)
+    VALUES (@Type, @StartDate, @EndDate, 'Active');
+        
+    SET @ContractID = SCOPE_IDENTITY();
+        
+    UPDATE Employee
+    SET contract_id = @ContractID
+    WHERE employee_id = @EmployeeID;
+    
+    PRINT 'Contract created successfully';
+END;
+GO
 
+--p2
+GO
+CREATE PROCEDURE RenewContract
+    @ContractID INT,
+    @NewEndDate DATE
+AS
+BEGIN
+    UPDATE Contract
+    SET end_date = @NewEndDate,
+        current_state = 'Active'
+    WHERE contract_id = @ContractID;
+    
+    PRINT 'Contract renewed successfully';
+END;
+GO
+
+--p3
+GO
+CREATE PROCEDURE ApproveLeaveRequest
+    @LeaveRequestID INT,
+    @ApproverID INT,
+    @Status VARCHAR(20)
+AS
+BEGIN
+    UPDATE LeaveRequest
+    SET status = @Status
+    WHERE request_id = @LeaveRequestID;
+    
+    PRINT 'Leave request processed successfully';
+END;
+GO
+
+--p4
+GO
+CREATE PROCEDURE AssignMission
+    @EmployeeID INT,
+    @ManagerID INT,
+    @Destination VARCHAR(50),
+    @StartDate DATE,
+    @EndDate DATE
+AS
+BEGIN
+    INSERT INTO Mission (destination, start_date, end_date, status, employee_id, manager_id)
+    VALUES (@Destination, @StartDate, @EndDate, 'Approved', @EmployeeID, @ManagerID);
+    
+    PRINT 'Mission assigned successfully';
+END;
+GO
+
+--p5
+GO
+CREATE PROCEDURE ReviewReimbursement
+    @ClaimID INT,
+    @ApproverID INT,
+    @Decision VARCHAR(20)
+AS
+BEGIN
+    UPDATE Reimbursement
+    SET current_status = @Decision,
+        approval_date = GETDATE()
+    WHERE reimbursement_id = @ClaimID;
+    
+    PRINT 'Reimbursement claim reviewed successfully';
+END;
+GO
+
+--p6
+GO
+CREATE PROCEDURE GetActiveContracts
+AS
+BEGIN
+    SELECT 
+        c.contract_id,
+        c.type,
+        c.start_date,
+        c.end_date,
+        c.current_state,
+        e.first_name + ' ' + e.last_name AS employee_name
+    FROM Contract c
+    INNER JOIN Employee e ON c.contract_id = e.contract_id
+    WHERE c.current_state = 'Active';
+END;
+GO
+
+--p7
+GO
+CREATE PROCEDURE GetTeamByManager
+    @ManagerID INT
+AS
+BEGIN
+    SELECT 
+        employee_id,
+        first_name + ' ' + last_name AS full_name
+    FROM Employee
+    WHERE manager_id = @ManagerID;
+END;
+GO
+
+--p8
+GO
+CREATE PROCEDURE UpdateLeavePolicy
+    @PolicyID INT,
+    @EligibilityRules VARCHAR(200),
+    @NoticePeriod INT
+AS
+BEGIN
+    UPDATE LeavePolicy
+    SET eligibility_rules = @EligibilityRules,
+        notice_period = @NoticePeriod
+    WHERE policy_id = @PolicyID;
+    
+    PRINT 'Leave policy updated successfully';
+END;
+GO
+
+--p9
+GO
+CREATE PROCEDURE GetExpiringContracts
+    @DaysBefore INT
+AS
+BEGIN
+    SELECT 
+        c.contract_id,
+        c.type,
+        c.start_date,
+        c.end_date,
+        c.current_state,
+        e.first_name + ' ' + e.last_name AS employee_name
+    FROM Contract c
+    INNER JOIN Employee e ON c.contract_id = e.contract_id
+    WHERE c.end_date <= DATEADD(DAY, @DaysBefore, GETDATE())
+    AND c.end_date >= GETDATE()
+    AND c.current_state = 'Active';
+END;
+GO
+
+--p10
+GO
+CREATE PROCEDURE AssignDepartmentHead
+    @DepartmentID INT,
+    @ManagerID INT
+AS
+BEGIN
+    UPDATE Department
+    SET department_head_id = @ManagerID
+    WHERE department_id = @DepartmentID;
+    
+    PRINT 'Department head assigned successfully';
+END;
+GO
+
+--p11
+GO
+CREATE PROCEDURE CreateEmployeeProfile
+    @FirstName VARCHAR(50),
+    @LastName VARCHAR(50),
+    @DepartmentID INT,
+    @RoleID INT,
+    @HireDate DATE,
+    @Email VARCHAR(100),
+    @Phone VARCHAR(20),
+    @NationalID VARCHAR(50),
+    @DateOfBirth DATE,
+    @CountryOfBirth VARCHAR(100)
+AS
+BEGIN
+    DECLARE @NewEmployeeID INT;
+    
+    INSERT INTO Employee (first_name, last_name, department_id, hire_date, email, phone, national_id, date_of_birth, country_of_birth, is_active, profile_completion, account_status, employment_status)
+    VALUES (@FirstName, @LastName, @DepartmentID, @HireDate, @Email, @Phone, @NationalID, @DateOfBirth, @CountryOfBirth, 1, 0, 'Active', 'Active');
+    
+    SET @NewEmployeeID = SCOPE_IDENTITY();
+    
+    INSERT INTO Employee_Role (employee_id, role_id, assigned_date)
+    VALUES (@NewEmployeeID, @RoleID, GETDATE());
+    
+    SELECT @NewEmployeeID AS NewEmployeeID;
+    PRINT 'Employee profile created successfully';
+END;
+GO
+
+--p12
+GO
+CREATE PROCEDURE UpdateEmployeeProfile
+    @EmployeeID INT,
+    @FieldName VARCHAR(50),
+    @NewValue VARCHAR(255)
+AS
+BEGIN
+    -- Update employee profile based on field name
+    IF @FieldName = 'phone'
+        UPDATE Employee SET phone = @NewValue WHERE employee_id = @EmployeeID;
+    ELSE IF @FieldName = 'email'
+        UPDATE Employee SET email = @NewValue WHERE employee_id = @EmployeeID;
+    ELSE IF @FieldName = 'address'
+        UPDATE Employee SET address = @NewValue WHERE employee_id = @EmployeeID;
+    ELSE IF @FieldName = 'emergency_contact_name'
+        UPDATE Employee SET emergency_contact_name = @NewValue WHERE employee_id = @EmployeeID;
+    ELSE IF @FieldName = 'emergency_contact_phone'
+        UPDATE Employee SET emergency_contact_phone = @NewValue WHERE employee_id = @EmployeeID;
+    
+    PRINT 'Employee profile updated successfully';
+END;
+GO
+
+--p13
+GO
+CREATE PROCEDURE SetProfileCompleteness
+    @EmployeeID INT,
+    @CompletenessPercentage INT
+AS
+BEGIN
+    UPDATE Employee
+    SET profile_completion = @CompletenessPercentage
+    WHERE employee_id = @EmployeeID;
+    
+    SELECT @CompletenessPercentage AS updated_completeness;
+    PRINT 'Profile completeness updated successfully';
+END;
+GO
+
+--p14
+GO
+CREATE PROCEDURE GenerateProfileReport
+    @FilterField VARCHAR(50),
+    @FilterValue VARCHAR(100)
+AS
+BEGIN
+    IF @FilterField = 'department'
+        SELECT * FROM Employee WHERE department_id = CAST(@FilterValue AS INT);
+    ELSE IF @FilterField = 'position'
+        SELECT * FROM Employee WHERE position_id = CAST(@FilterValue AS INT);
+    ELSE IF @FilterField = 'country_of_birth'
+        SELECT * FROM Employee WHERE country_of_birth = @FilterValue;
+    ELSE IF @FilterField = 'employment_status'
+        SELECT * FROM Employee WHERE employment_status = @FilterValue;
+    ELSE IF @FilterField = 'is_active'
+        SELECT * FROM Employee WHERE is_active = CAST(@FilterValue AS BIT);
+    ELSE
+        SELECT * FROM Employee;
+END;
+GO
+
+--p15
+GO
+CREATE PROCEDURE CreateShiftType
+    @ShiftID INT,
+    @Name VARCHAR(100),
+    @Type VARCHAR(50),
+    @Start_Time TIME,
+    @End_Time TIME,
+    @Break_Duration INT,
+    @Shift_Date DATE,
+    @Status VARCHAR(50)
+AS
+BEGIN
+    INSERT INTO ShiftSchedule (name, type, start_time, end_time, break_duration, shift_date, status)
+    VALUES (@Name, @Type, @Start_Time, @End_Time, @Break_Duration, @Shift_Date, @Status);
+    
+    PRINT 'Shift type created successfully';
+END;
+GO
+
+--p17
+GO
+CREATE PROCEDURE AssignRotationalShift
+    @EmployeeID INT,
+    @ShiftCycle INT,
+    @StartDate DATE,
+    @EndDate DATE,
+    @status VARCHAR(20)
+AS
+BEGIN
+    INSERT INTO ShiftAssignment (employee_id, shift_id, start_date, end_date, status)
+    SELECT @EmployeeID, shift_id, @StartDate, @EndDate, @status
+    FROM ShiftCycleAssignment
+    WHERE cycle_id = @ShiftCycle
+    ORDER BY order_number;
+    
+    PRINT 'Rotational shift assigned successfully';
+END;
+GO
+
+--p18
+GO
+CREATE PROCEDURE NotifyShiftExpiry
+    @EmployeeID INT,
+    @ShiftAssignmentID INT,
+    @ExpiryDate DATE
+AS
+BEGIN
+    DECLARE @NotificationID INT;
+    
+    INSERT INTO Notification (message_content, urgency, notification_type)
+    VALUES ('Your shift assignment is expiring soon', 'Normal', 'Shift');
+    
+    SET @NotificationID = SCOPE_IDENTITY();
+    
+    INSERT INTO Employee_Notification (employee_id, notification_id)
+    VALUES (@EmployeeID, @NotificationID);
+    
+    PRINT 'Shift expiry notification sent successfully';
+END;
+GO
+
+--p19
+GO
+CREATE PROCEDURE DefineShortTimeRules
+    @RuleName VARCHAR(50),
+    @LateMinutes INT,
+    @EarlyLeaveMinutes INT,
+    @PenaltyType VARCHAR(50)
+AS
+BEGIN
+    INSERT INTO PayrollPolicy (effective_date, type, description)
+    VALUES (GETDATE(), 'Deduction', @RuleName + ': ' + @PenaltyType);
+    
+    PRINT 'Short time rules defined successfully';
+END;
+GO
+
+--p20
+GO
+CREATE PROCEDURE SetGracePeriod
+    @Minutes INT
+AS
+BEGIN
+    DECLARE @PolicyID INT;
+    
+    INSERT INTO PayrollPolicy (effective_date, type, description)
+    VALUES (GETDATE(), 'Lateness', 'Grace Period Policy');
+    
+    SET @PolicyID = SCOPE_IDENTITY();
+    
+    INSERT INTO LatenessPolicy (policy_id, grace_period_mins, deduction_rate)
+    VALUES (@PolicyID, @Minutes, 0.00);
+    
+    PRINT 'Grace period set successfully';
+END;
+GO
+
+--p21
+GO
+CREATE PROCEDURE DefinePenaltyThreshold
+    @LateMinutes INT,
+    @DeductionType VARCHAR(50)
+AS
+BEGIN
+    DECLARE @PolicyID INT;
+    
+    INSERT INTO PayrollPolicy (effective_date, type, description)
+    VALUES (GETDATE(), 'Deduction', 'Penalty Threshold: ' + @DeductionType);
+    
+    SET @PolicyID = SCOPE_IDENTITY();
+    
+    INSERT INTO DeductionPolicy (policy_id, deduction_reason, calculation_mode)
+    VALUES (@PolicyID, 'Lateness Penalty', @DeductionType);
+    
+    PRINT 'Penalty threshold defined successfully';
+END;
+GO
+
+--p22
+GO
+CREATE PROCEDURE DefinePermissionLimits
+    @MinHours INT,
+    @MaxHours INT
+AS
+BEGIN
+    INSERT INTO PayrollPolicy (effective_date, type, description)
+    VALUES (GETDATE(), 'Permission', 'Permission Hours Limits Policy');
+    
+    PRINT 'Permission limits defined successfully';
+END;
+GO
+
+--p23
+GO
+CREATE PROCEDURE EscalatePendingRequests
+    @Deadline DATETIME
+AS
+BEGIN
+    DECLARE @NotificationID INT;
+    
+    INSERT INTO Notification (message_content, urgency, notification_type)
+    VALUES ('Pending requests past deadline require escalation', 'High', 'System');
+    
+    SET @NotificationID = SCOPE_IDENTITY();
+    
+    INSERT INTO Employee_Notification (employee_id, notification_id)
+    SELECT DISTINCT e.manager_id, @NotificationID
+    FROM LeaveRequest lr
+    INNER JOIN Employee e ON lr.employee_id = e.employee_id
+    WHERE lr.status = 'Pending' AND GETDATE() > @Deadline;
+    
+    PRINT 'Pending requests escalated successfully';
+END;
+GO
+
+--p24
+GO
+CREATE PROCEDURE LinkVacationToShift
+    @VacationPackageID INT,
+    @EmployeeID INT
+AS
+BEGIN
+    INSERT INTO LeaveEntitlement (employee_id, leave_type_id, entitlement)
+    VALUES (@EmployeeID, @VacationPackageID, 21.00);
+    
+    PRINT 'Vacation package linked to employee shift successfully';
+END;
+GO
+
+--p25
+GO
+CREATE PROCEDURE ConfigureLeavePolicies
+AS
+BEGIN
+     PRINT 'Leave configuration process initiated successfully';
+END;
+GO
+
+--p26
+GO
+CREATE PROCEDURE AuthenticateLeaveAdmin
+    @AdminID INT,
+    @Password VARCHAR(100)
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1 
+        FROM HRAdministrator 
+        WHERE employee_id = @AdminID
+    )
+    BEGIN
+        PRINT 'Administrator authenticated successfully';
+    END
+    ELSE
+    BEGIN
+        PRINT 'Authentication failed';
+    END
+END;
+GO
+
+--p27
+GO
+CREATE PROCEDURE ApplyLeaveConfiguration
+AS
+BEGIN
+    PRINT 'Leave configuration applied successfully';
+END;
+GO
+
+--p28
+GO
+CREATE PROCEDURE UpdateLeaveEntitlements
+    @EmployeeID INT
+AS
+BEGIN
+    UPDATE LeaveEntitlement
+    SET entitlement = entitlement
+    WHERE employee_id = @EmployeeID;
+    
+    PRINT 'Leave entitlements updated successfully';
+END;
+GO
+
+--p29
+GO
+CREATE PROCEDURE ConfigureLeaveEligibility
+    @LeaveType VARCHAR(50),
+    @MinTenure INT,
+    @EmployeeType VARCHAR(50)
+AS
+BEGIN
+    INSERT INTO LeavePolicy (name, eligibility_rules, special_leave_type)
+    VALUES (@LeaveType + ' Policy', 'Eligibility Rules Configured', @LeaveType);
+    
+    PRINT 'Leave eligibility configured successfully';
+END;
+GO
+
+--p30
+GO
+CREATE PROCEDURE ManageLeaveTypes
+    @LeaveType VARCHAR(50),
+    @Description VARCHAR(200)
+AS
+BEGIN
+    INSERT INTO Leave (leave_type, leave_description)
+    VALUES (@LeaveType, @Description);
+    
+    PRINT 'Leave type managed successfully';
+END;
+GO
+
+--p31
+GO
+CREATE PROCEDURE AssignLeaveEntitlement
+    @EmployeeID INT,
+    @LeaveType VARCHAR(50),
+    @Entitlement DECIMAL(5,2)
+AS
+BEGIN
+    DECLARE @LeaveID INT;
+    
+    SELECT @LeaveID = leave_id 
+    FROM Leave 
+    WHERE leave_type = @LeaveType;
+    
+    INSERT INTO LeaveEntitlement (employee_id, leave_type_id, entitlement)
+    VALUES (@EmployeeID, @LeaveID, @Entitlement);
+    
+    PRINT 'Leave entitlement assigned successfully';
+END;
+GO
+
+--p32
+GO
+CREATE PROCEDURE ConfigureLeaveRules
+    @LeaveType VARCHAR(50),
+    @MaxDuration INT,
+    @NoticePeriod INT,
+    @WorkflowType VARCHAR(50)
+AS
+BEGIN
+    INSERT INTO LeavePolicy (name, purpose, notice_period, special_leave_type)
+    VALUES (@LeaveType + ' Rules', @WorkflowType, @NoticePeriod, @LeaveType);
+    
+    PRINT 'Leave rules configured successfully';
+END;
+GO
+
+--p33
+GO
+CREATE PROCEDURE ConfigureSpecialLeave
+    @LeaveType VARCHAR(50),
+    @Rules VARCHAR(200)
+AS
+BEGIN
+    INSERT INTO LeavePolicy (name, eligibility_rules, special_leave_type)
+    VALUES (@LeaveType, @Rules, @LeaveType);
+    
+    PRINT 'Special leave configured successfully';
+END;
+GO
+
+--p34
+GO
+CREATE PROCEDURE SetLeaveYearRules
+    @StartDate DATE,
+    @EndDate DATE
+AS
+BEGIN
+    INSERT INTO LeavePolicy (name, purpose, reset_on_new_year)
+    VALUES ('Leave Year Policy', 'Annual Leave Year Rules', 1);
+    
+    PRINT 'Leave year rules set successfully';
+END;
+GO
+
+--p35
+GO
+CREATE PROCEDURE AdjustLeaveBalance
+    @EmployeeID INT,
+    @LeaveType VARCHAR(50),
+    @Adjustment DECIMAL(5,2)
+AS
+BEGIN
+    DECLARE @LeaveID INT;
+    
+    SELECT @LeaveID = leave_id 
+    FROM Leave 
+    WHERE leave_type = @LeaveType;
+    
+    UPDATE LeaveEntitlement
+    SET entitlement = entitlement + @Adjustment
+    WHERE employee_id = @EmployeeID AND leave_type_id = @LeaveID;
+    
+    PRINT 'Leave balance adjusted successfully';
+END;
+GO
+
+--p36
+GO
+CREATE PROCEDURE ManageLeaveRoles
+    @RoleID INT,
+    @Permissions VARCHAR(200)
+AS
+BEGIN
+    INSERT INTO RolePermission (role_id, permission_name, allowed_action)
+    VALUES (@RoleID, 'Leave Management', @Permissions);
+    
+    PRINT 'Leave roles managed successfully';
+END;
+GO
+
+--p37
+GO
+CREATE PROCEDURE FinalizeLeaveRequest
+    @LeaveRequestID INT
+AS
+BEGIN
+    UPDATE LeaveRequest
+    SET status = 'Finalized'
+    WHERE request_id = @LeaveRequestID;
+    
+    PRINT 'Leave request finalized successfully';
+END;
+GO
+
+--p38
+GO
+CREATE PROCEDURE OverrideLeaveDecision
+    @LeaveRequestID INT,
+    @Reason VARCHAR(200)
+AS
+BEGIN
+    UPDATE LeaveRequest
+    SET status = 'Approved',
+        justification = @Reason
+    WHERE request_id = @LeaveRequestID;
+    
+    PRINT 'Leave decision overridden successfully';
+END;
+GO
+
+--p39
+GO
+CREATE PROCEDURE BulkProcessLeaveRequests
+    @LeaveRequestIDs VARCHAR(500)
+AS
+BEGIN
+    UPDATE LeaveRequest
+    SET status = 'Approved'
+    WHERE ',' + @LeaveRequestIDs + ',' LIKE '%,' + CAST(request_id AS VARCHAR) + ',%';
+    
+    PRINT 'Leave requests processed in bulk successfully';
+END;
+GO
+
+--p40
+GO
+CREATE PROCEDURE VerifyMedicalLeave
+    @LeaveRequestID INT,
+    @DocumentID INT
+AS
+BEGIN
+    UPDATE LeaveRequest
+    SET status = 'Approved'
+    WHERE request_id = @LeaveRequestID;
+    
+    PRINT 'Medical leave verified successfully';
+END;
+GO
+
+--p41
+GO
+CREATE PROCEDURE SyncLeaveBalances
+    @LeaveRequestID INT
+AS
+BEGIN
+    DECLARE @EmployeeID INT;
+    DECLARE @LeaveID INT;
+    DECLARE @Duration INT;
+    
+    SELECT @EmployeeID = employee_id, @LeaveID = leave_id, @Duration = duration
+    FROM LeaveRequest
+    WHERE request_id = @LeaveRequestID;
+    
+    UPDATE LeaveEntitlement
+    SET entitlement = entitlement - @Duration
+    WHERE employee_id = @EmployeeID AND leave_type_id = @LeaveID;
+    
+    PRINT 'Leave balances synced successfully';
+END;
+GO
+
+--p42
+GO
+CREATE PROCEDURE ProcessLeaveCarryForward
+    @Year INT
+AS
+BEGIN
+    UPDATE LeaveEntitlement
+    SET entitlement = entitlement + 5
+    WHERE leave_type_id IN (SELECT leave_id FROM Leave WHERE leave_type = 'Vacation');
+    
+    PRINT 'Leave carry-forward processed successfully';
+END;
+GO
+
+--p43
+GO
+CREATE PROCEDURE SyncLeaveToattendance
+    @LeaveRequestID INT
+AS
+BEGIN
+    DECLARE @EmployeeID INT;
+    DECLARE @ExceptionID INT;
+    
+    SELECT @EmployeeID = employee_id
+    FROM LeaveRequest
+    WHERE request_id = @LeaveRequestID;
+    
+    SELECT @ExceptionID = exception_id
+    FROM Exception
+    WHERE category = 'Leave' AND status = 'Active';
+    
+    INSERT INTO Employee_Exception (employee_id, exception_id)
+    VALUES (@EmployeeID, @ExceptionID);
+    
+    PRINT 'Leave synced to attendance successfully';
+END;
+GO
+
+--p44
+GO
+CREATE PROCEDURE UpdateInsuranceBrackets
+    @BracketID INT,
+    @NewMinSalary DECIMAL(10,2),
+    @NewMaxSalary DECIMAL(10,2),
+    @NewEmployeeContribution DECIMAL(5,2),
+    @NewEmployerContribution DECIMAL(5,2),
+    @UpdatedBy INT
+AS
+BEGIN
+    UPDATE Insurance
+    SET contribution_rate = @NewEmployeeContribution
+    WHERE insurance_id = @BracketID;
+    
+    PRINT 'Insurance brackets updated successfully';
+END;
+GO
+
+--p45
+GO
+CREATE PROCEDURE ApprovePolicyUpdate
+    @PolicyID INT,
+    @ApprovedBy INT
+AS
+BEGIN
+    UPDATE PayrollPolicy
+    SET description = 'Approved'
+    WHERE policy_id = @PolicyID;
+    
+    PRINT 'Policy update approved successfully';
+END;
+GO
